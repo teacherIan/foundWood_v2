@@ -1,4 +1,33 @@
+import { useThree } from '@react-three/fiber';
+
 export default function UI() {
+  const { camera } = useThree();
+
+  const resetCamera = () => {
+    camera.position.set(0, 0, 5);
+    camera.rotation.set(0, 0, 0);
+    camera.updateProjectionMatrix();
+  };
+
+  const randomizeCamera = () => {
+    camera.position.set(
+      (Math.random() - 0.5) * 10,
+      (Math.random() - 0.5) * 10,
+      2 + Math.random() * 8
+    );
+    camera.lookAt(0, 0, 0);
+  };
+
+  const takeScreenshot = () => {
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      const link = document.createElement('a');
+      link.download = 'splat-screenshot.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  };
+
   return (
     <>
       {/* Top Header */}
@@ -13,9 +42,15 @@ export default function UI() {
       <div className="ui-interactive absolute bottom-4 left-4 right-4">
         <div className="glass-panel p-4">
           <div className="flex justify-center space-x-4">
-            <button className="btn-primary">Reset Camera</button>
-            <button className="btn-primary">Toggle Animation</button>
-            <button className="btn-primary">Change Scene</button>
+            <button className="btn-primary" onClick={resetCamera}>
+              Reset Camera
+            </button>
+            <button className="btn-primary" onClick={randomizeCamera}>
+              Random View
+            </button>
+            <button className="btn-primary" onClick={takeScreenshot}>
+              Screenshot
+            </button>
           </div>
         </div>
       </div>
