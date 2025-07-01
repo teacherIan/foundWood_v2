@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+/* Custom base styles */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-900 text-white font-sans;
+  }
+
+  #root {
+    @apply w-full h-screen;
+  }
+}
+
+/* Custom component classes for 3D scenes */
+@layer components {
+  .scene-container {
+    @apply w-full h-screen relative overflow-hidden;
+  }
+
+  .ui-overlay {
+    @apply absolute inset-0 pointer-events-none z-10;
+  }
+
+  .ui-interactive {
+    @apply pointer-events-auto;
+  }
+
+  .glass-panel {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-lg;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors;
+  }
+}
