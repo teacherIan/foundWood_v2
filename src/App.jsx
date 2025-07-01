@@ -7,7 +7,7 @@ export default function App() {
   return (
     <div className="scene-container">
       {/* 3D Canvas */}
-      <Canvas camera={{ position: [0, 0, 2], fov: 45 }} className="">
+      <Canvas camera={{ position: [0, 0, 4], fov: 45 }} className="">
         <Scene />
         <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
       </Canvas>
