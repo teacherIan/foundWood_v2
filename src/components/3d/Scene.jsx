@@ -2,6 +2,16 @@ import { Splat, PerspectiveCamera } from '@react-three/drei';
 import { useControls } from 'leva';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import {
+  EffectComposer,
+  Bloom,
+  ToneMapping,
+  Vignette,
+  SMAA,
+  Pixelation,
+  DepthOfField,
+} from '@react-three/postprocessing';
+import { BlendFunction, ToneMappingMode } from 'postprocessing';
 import splatUrl from '../../assets/fixed_model.splat?url';
 
 export default function Scene() {
@@ -34,6 +44,46 @@ export default function Scene() {
       fov: { value: 75, min: 10, max: 120, step: 1 },
     }
   );
+
+  // Post-processing controls
+  const {
+    enablePostProcessing,
+    bloomIntensity,
+    bloomLuminanceThreshold,
+    bloomLuminanceSmoothing,
+    pixelationGranularity,
+    dofFocalLength,
+    dofBokehScale,
+    toneMappingMode,
+    toneMappingExposure,
+    vignetteOffset,
+    vignetteDarkness,
+    enableSMAA,
+  } = useControls('Post Processing', {
+    enablePostProcessing: { value: true },
+    bloomIntensity: { value: 0.5, min: 0, max: 3, step: 0.01 },
+    bloomLuminanceThreshold: { value: 0.9, min: 0, max: 1, step: 0.01 },
+    bloomLuminanceSmoothing: { value: 0.025, min: 0, max: 1, step: 0.001 },
+    pixelationGranularity: { value: 5, min: 1, max: 20, step: 1 },
+    dofFocalLength: { value: 0.02, min: 0.01, max: 0.2, step: 0.001 },
+    dofBokehScale: { value: 2.0, min: 0.5, max: 10, step: 0.1 },
+    toneMappingMode: {
+      value: ToneMappingMode.ACES_FILMIC,
+      options: {
+        Linear: ToneMappingMode.LINEAR,
+        Reinhard: ToneMappingMode.REINHARD,
+        Reinhard2: ToneMappingMode.REINHARD2,
+        'Reinhard2 Adaptive': ToneMappingMode.REINHARD2_ADAPTIVE,
+        Uncharted2: ToneMappingMode.UNCHARTED2,
+        'Optimized Cineon': ToneMappingMode.OPTIMIZED_CINEON,
+        'ACES Filmic': ToneMappingMode.ACES_FILMIC,
+      },
+    },
+    toneMappingExposure: { value: 1.0, min: 0.1, max: 3, step: 0.01 },
+    vignetteOffset: { value: 0.5, min: 0, max: 1, step: 0.01 },
+    vignetteDarkness: { value: 0.5, min: 0, max: 1, step: 0.01 },
+    enableSMAA: { value: true },
+  });
 
   // Real-time camera info display
   const [, setCameraInfo] = useControls('Camera Info (Read-only)', () => ({
@@ -82,7 +132,6 @@ export default function Scene() {
 
   return (
     <>
-      {' '}
       <Splat
         src={splatUrl}
         alphaTest={alphaTest}
@@ -93,6 +142,34 @@ export default function Scene() {
         rotation={rotation}
         scale={scale}
       />
+
+      {enablePostProcessing && (
+        <EffectComposer>
+          {enableSMAA && <SMAA />}
+
+          <Bloom
+            intensity={bloomIntensity}
+            luminanceThreshold={bloomLuminanceThreshold}
+            luminanceSmoothing={bloomLuminanceSmoothing}
+            blendFunction={BlendFunction.SCREEN}
+          />
+
+          <Pixelation granularity={pixelationGranularity} />
+
+          <DepthOfField
+            focalLength={dofFocalLength}
+            bokehScale={dofBokehScale}
+          />
+
+          <ToneMapping mode={toneMappingMode} exposure={toneMappingExposure} />
+
+          <Vignette
+            offset={vignetteOffset}
+            darkness={vignetteDarkness}
+            blendFunction={BlendFunction.MULTIPLY}
+          />
+        </EffectComposer>
+      )}
     </>
   );
 }

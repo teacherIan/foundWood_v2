@@ -11,10 +11,12 @@
   "dependencies": {
     "@react-three/drei": "^10.4.2",
     "@react-three/fiber": "^9.1.4",
+    "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/postcss": "^4.1.11",
     "autoprefixer": "^10.4.21",
     "leva": "^0.10.0",
     "postcss": "^8.5.6",
+    "postprocessing": "^6.37.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11",
