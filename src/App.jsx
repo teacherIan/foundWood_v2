@@ -7,23 +7,10 @@ export default function App() {
   return (
     <div className="scene-container">
       {/* 3D Canvas */}
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
-        className="bg-gradient-to-b from-blue-900 to-purple-900"
-      >
+      <Canvas camera={{ position: [0, 0, 2], fov: 45 }} className="">
         <Scene />
-        <OrbitControls
-          enablePan={false}
-          enableZoom={true}
-          enableRotate={true}
-        />
-        <Environment preset="studio" />
+        <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
       </Canvas>
-
-      {/* UI Overlay */}
-      <div className="ui-overlay">
-        <UI />
-      </div>
     </div>
   );
 }
