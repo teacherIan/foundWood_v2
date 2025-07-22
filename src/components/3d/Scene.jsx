@@ -1,7 +1,14 @@
-import { Splat, PerspectiveCamera, Html } from '@react-three/drei';
+import {
+  Splat,
+  PerspectiveCamera,
+  Html,
+  MeshTransmissionMaterial,
+  Text,
+} from '@react-three/drei';
 import { useControls } from 'leva';
 import { useThree, useFrame } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 import {
   EffectComposer,
   Bloom,
@@ -30,7 +37,7 @@ export default function Scene() {
     alphaTest: { value: 0, min: 0, max: 1, step: 0.01 },
     alphaHash: { value: false },
     toneMapped: { value: false },
-    chunkSize: { value: 25000, min: 1000, max: 100000, step: 1000 },
+    chunkSize: { value: 1, min: 1, max: 100000, step: 1000 },
     position: { value: [0, 0, 0], step: 0.1 },
     rotation: { value: [0, 0, 0], step: 0.01 },
     scale: { value: [1, 1, 1], min: 0.1, max: 5, step: 0.1 },
@@ -51,11 +58,40 @@ export default function Scene() {
     showTestMesh: { value: true },
   });
 
+  // Mesh controls
+  const {
+    mesh0Position,
+    mesh0Scale,
+    mesh0Color,
+    mesh1Position,
+    mesh1Scale,
+    mesh1Color,
+    mesh2Position,
+    mesh2Scale,
+    mesh2Color,
+    mesh3Position,
+    mesh3Scale,
+    mesh3Color,
+  } = useControls('Program Meshes', {
+    mesh0Position: { value: [0.5, 0, -0.5], step: 0.1 },
+    mesh0Scale: { value: [1, 1, 1], min: 0.1, max: 3, step: 0.1 },
+    mesh0Color: { value: '#FFA500' }, // orange
+    mesh1Position: { value: [-1, 0, 0], step: 0.1 },
+    mesh1Scale: { value: [1, 1, 1], min: 0.1, max: 3, step: 0.1 },
+    mesh1Color: { value: '#ff0000' },
+    mesh2Position: { value: [0, 0, 0], step: 0.1 },
+    mesh2Scale: { value: [1, 1, 1], min: 0.1, max: 3, step: 0.1 },
+    mesh2Color: { value: '#00ff00' },
+    mesh3Position: { value: [1, 0, 0], step: 0.1 },
+    mesh3Scale: { value: [1, 1, 1], min: 0.1, max: 3, step: 0.1 },
+    mesh3Color: { value: '#0000ff' },
+  });
+
   // Proxy geometry controls for splat occlusion
   const { enableProxyGeometry, proxyGeometryType, proxySize } = useControls(
     'Splat Proxy Geometry',
     {
-      enableProxyGeometry: { value: true },
+      enableProxyGeometry: { value: false },
       proxyGeometryType: {
         value: 'box',
         options: ['box', 'sphere', 'cylinder'],
@@ -152,13 +188,6 @@ export default function Scene() {
     }
   });
 
-  const handle3DButtonClick = () => {
-    console.log('3D Button clicked!');
-    // You can manipulate the scene, splat, or camera here
-    // For example, reset splat position:
-    // setSplatPosition([0, 0, 0]);
-  };
-
   useEffect(() => {
     camera.position.set(...cameraPosition);
     camera.rotation.set(...cameraRotation);
@@ -176,6 +205,7 @@ export default function Scene() {
           alphaHash={alphaHash}
           toneMapped={toneMapped}
           chunkSize={chunkSize}
+          renderOrder={1}
         />
 
         {/* Invisible proxy geometry for HTML occlusion */}
@@ -200,13 +230,78 @@ export default function Scene() {
         )}
       </group>
 
-      {/* Test mesh to demonstrate occlusion working */}
-      {showTestMesh && (
-        <mesh position={[0.5, 0, -0.5]}>
-          <boxGeometry args={[0.5, 0.5, 0.5]} />
-          <meshBasicMaterial color="orange" />
-        </mesh>
-      )}
+      <mesh position={mesh0Position} scale={mesh0Scale}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshBasicMaterial
+          color={mesh0Color}
+          transparent
+          opacity={1}
+        />
+        {/* Text inside the cube */}
+        <Text
+          position={[0, 0, 0]}
+          fontSize={0.15}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          A
+        </Text>
+      </mesh>
+
+      <mesh position={mesh1Position} scale={mesh1Scale}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshBasicMaterial
+          color={mesh1Color}
+          transparent
+          opacity={1}
+        />
+        <Text
+          position={[0, 0, 0]}
+          fontSize={0.15}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          B
+        </Text>
+      </mesh>
+
+      <mesh position={mesh2Position} scale={mesh2Scale}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshBasicMaterial
+          color={mesh2Color}
+          transparent
+          opacity={1}
+        />
+        <Text
+          position={[0, 0, 0]}
+          fontSize={0.15}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          C
+        </Text>
+      </mesh>
+
+      <mesh position={mesh3Position} scale={mesh3Scale}>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshBasicMaterial
+          color={mesh3Color}
+          transparent
+          opacity={1}
+        />
+        <Text
+          position={[0, 0, 0]}
+          fontSize={0.15}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          D
+        </Text>
+      </mesh>
 
       {enablePostProcessing && (
         <EffectComposer>
