@@ -27,7 +27,7 @@ export default function Scene() {
     rotation,
     scale,
   } = useControls('Splat Controls', {
-    alphaTest: { value: 0.5, min: 0, max: 1, step: 0.01 },
+    alphaTest: { value: 0, min: 0, max: 1, step: 0.01 },
     alphaHash: { value: false },
     toneMapped: { value: false },
     chunkSize: { value: 25000, min: 1000, max: 100000, step: 1000 },
@@ -39,8 +39,8 @@ export default function Scene() {
   const { cameraPosition, cameraRotation, fov } = useControls(
     'Camera Controls',
     {
-      cameraPosition: { value: [0, 0, 5], step: 0.1 },
-      cameraRotation: { value: [0, 0, 0], step: 0.01 },
+      cameraPosition: { value: [0.44, 0.6, 2.08], step: 0.1 },
+      cameraRotation: { value: [-0.24, 0.07, 0.02], step: 0.01 },
       fov: { value: 75, min: 10, max: 120, step: 1 },
     }
   );
@@ -48,22 +48,21 @@ export default function Scene() {
   // HTML Element controls
   const { htmlPosition, showTestMesh } = useControls('HTML Elements', {
     htmlPosition: { value: [0, 0, -1], step: 0.1 },
-    showTestMesh: { value: true }
+    showTestMesh: { value: true },
   });
 
   // Proxy geometry controls for splat occlusion
-  const { 
-    enableProxyGeometry,
-    proxyGeometryType,
-    proxySize
-  } = useControls('Splat Proxy Geometry', {
-    enableProxyGeometry: { value: true },
-    proxyGeometryType: { 
-      value: 'box',
-      options: ['box', 'sphere', 'cylinder']
-    },
-    proxySize: { value: [2, 2, 2], min: 0.1, max: 10, step: 0.1 }
-  });
+  const { enableProxyGeometry, proxyGeometryType, proxySize } = useControls(
+    'Splat Proxy Geometry',
+    {
+      enableProxyGeometry: { value: true },
+      proxyGeometryType: {
+        value: 'box',
+        options: ['box', 'sphere', 'cylinder'],
+      },
+      proxySize: { value: [2, 2, 2], min: 0.1, max: 10, step: 0.1 },
+    }
+  );
 
   // Post-processing controls
   const {
@@ -85,8 +84,8 @@ export default function Scene() {
     vignetteDarkness,
     enableSMAA,
   } = useControls('Post Processing', {
-    enablePostProcessing: { value: true },
-    enableSMAA: { value: true },
+    enablePostProcessing: { value: false },
+    enableSMAA: { value: false },
     enableBloom: { value: false },
     bloomIntensity: { value: 0.5, min: 0, max: 3, step: 0.01 },
     bloomLuminanceThreshold: { value: 0.9, min: 0, max: 1, step: 0.01 },
@@ -178,17 +177,23 @@ export default function Scene() {
           toneMapped={toneMapped}
           chunkSize={chunkSize}
         />
-        
+
         {/* Invisible proxy geometry for HTML occlusion */}
         {enableProxyGeometry && (
           <mesh>
             {proxyGeometryType === 'box' && <boxGeometry args={proxySize} />}
-            {proxyGeometryType === 'sphere' && <sphereGeometry args={[proxySize[0], 16, 16]} />}
-            {proxyGeometryType === 'cylinder' && <cylinderGeometry args={[proxySize[0], proxySize[1], proxySize[2], 16]} />}
-            <meshBasicMaterial 
-              visible={false} 
-              depthWrite={true} 
-              depthTest={true} 
+            {proxyGeometryType === 'sphere' && (
+              <sphereGeometry args={[proxySize[0], 16, 16]} />
+            )}
+            {proxyGeometryType === 'cylinder' && (
+              <cylinderGeometry
+                args={[proxySize[0], proxySize[1], proxySize[2], 16]}
+              />
+            )}
+            <meshBasicMaterial
+              visible={false}
+              depthWrite={true}
+              depthTest={true}
               colorWrite={false}
             />
           </mesh>
@@ -202,103 +207,6 @@ export default function Scene() {
           <meshBasicMaterial color="orange" />
         </mesh>
       )}
-
-      {/* 3D Button positioned in world space with occlusion */}
-      <Html
-        occlude="blending"
-        position={htmlPosition}
-        center
-        transform
-        // sprite
-      >
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
-          onClick={handle3DButtonClick}
-        >
-          3D Button
-        </button>
-      </Html>
-
-      {/* Another HTML element with different occlusion */}
-      <Html occlude="raycast" position={[htmlPosition[0] + 1, htmlPosition[1] + 1, htmlPosition[2]]} center>
-        <div className="bg-red-500 text-white p-2 rounded">
-          Raycast Occluded
-        </div>
-      </Html>
-
-      {/* Non-occluded HTML for comparison */}
-      <Html position={[htmlPosition[0] - 1, htmlPosition[1] + 1, htmlPosition[2]]} center>
-        <div className="bg-green-500 text-white p-2 rounded">
-          Always Visible
-        </div>
-      </Html>
-
-      {/* 3D HTML UI elements for testing occlusion */}
-      <Html
-        position={htmlPosition}
-        transform
-        occlude
-        style={{
-          background: 'rgba(255, 255, 255, 0.9)',
-          padding: '10px',
-          borderRadius: '5px',
-          border: '1px solid #333',
-          fontSize: '14px',
-          fontFamily: 'Arial, sans-serif',
-          color: '#333',
-          backdropFilter: 'blur(10px)',
-          userSelect: 'none'
-        }}
-      >
-        <div>
-          <h3 style={{ margin: '0 0 10px 0' }}>3D HTML Element</h3>
-          <p style={{ margin: '0 0 10px 0' }}>This should occlude behind the splat!</p>
-          <button
-            onClick={() => console.log('3D HTML button clicked!')}
-            style={{
-              padding: '5px 10px',
-              background: '#007acc',
-              color: 'white',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer'
-            }}
-          >
-            Click Me
-          </button>
-        </div>
-      </Html>
-
-      {/* Additional HTML elements for testing */}
-      <Html
-        position={[2, 1, 0]}
-        transform
-        occlude
-        style={{
-          background: 'rgba(255, 100, 100, 0.9)',
-          padding: '8px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          color: 'white'
-        }}
-      >
-        Right Side Label
-      </Html>
-
-      <Html
-        position={[-2, -1, 0]}
-        transform
-        occlude
-        style={{
-          background: 'rgba(100, 255, 100, 0.9)',
-          padding: '8px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          color: 'black'
-        }}
-      >
-        Left Side Label
-      </Html>
 
       {enablePostProcessing && (
         <EffectComposer>
